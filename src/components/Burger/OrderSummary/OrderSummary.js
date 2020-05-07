@@ -1,14 +1,16 @@
 import React, {Component}  from 'react';
-import Aux from '../../../hoc/Aux';
+import Aux from '../../../hoc/Aux/Aux';
 import Button from '../../UI/Button/Button';
 
 // Changed to class component, so we can add lifecycle hooks and see when component is rendered/updated
+// Otherwise should be a functional component
 
 class OrderSummary extends Component {
 
-    componentWillUpdate() { 
+    componentWillUpdate() {
         console.log('[ORDER SUMMARY: COMPONENT WILL UPDATE');
     }
+
     render() {
         // expect to get ingredients in obj format
         const ingredientSummary = Object.keys(this.props.ingredients)
