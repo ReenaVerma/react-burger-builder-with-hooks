@@ -20,16 +20,25 @@ class BurgerBuilder extends Component {
     // Handle state of ingredients in Burger, in BurgerBuilder
 
     state = {
-        ingredients: {
-            salad: 0,
-            bacon: 0,
-            cheese: 0,
-            meat: 0
-        },
+        // ingredients: {
+        //     salad: 0,
+        //     bacon: 0,
+        //     cheese: 0,
+        //     meat: 0
+        // },
+        ingredients: null,
         totalPrice: 4,
         purchaseable: false,
         purchasing: false,
         loading: false
+    }
+
+    componentDidMount() {
+        axios.get('/ingredients.json')
+        .then(response => {
+            this.setState({ ingredients: response.data });
+        }
+     )
     }
 
     updatePurchaseState = (ingredients) => {
@@ -99,7 +108,7 @@ class BurgerBuilder extends Component {
         // alert('You continue!');
         // Need to add .json when using Google Firebase
 
-        this.setState({ loading: true});
+        this.setState({ loading: true });
 
         const order = {
             ingredients: this.state.ingredients,
@@ -117,7 +126,7 @@ class BurgerBuilder extends Component {
         }
         axios.post('/orders.json', order)
         .then(response => {
-            console.log('Axios.Post', response);
+            // console.log('Axios.Post', response);
             this.setState({ loading: false, purchasing: false });
         })
         .then(error => {
@@ -131,7 +140,6 @@ class BurgerBuilder extends Component {
     // }
 
     render() {
-
         const disableInfo = {
             ...this.state.ingredients
         };
@@ -144,17 +152,39 @@ class BurgerBuilder extends Component {
         }
         // {salad: true, meat: false...}
 
-        let orderSummary = <OrderSummary
-            ingredients={this.state.ingredients}
-            purchaseCancelled={this.purchaseCancelHandler}
-            purchaseContinued={this.purchaseContinueHandler}
-            price={this.state.totalPrice} />;
+        let orderSummary = null;
+        let burger = <Spinner />
+        // let burger = this.state.error ? <p>Ingredients can't be loaded!</p> : <Spinner />;
+
+        // Override burger if this.state.ingredients, is true
+        if (this.state.ingredients) {
+            burger = (
+                <Aux>
+                    <Burger ingredients={this.state.ingredients}/>
+                    <BuildControls
+                        ingredientAdded={this.addIngredientHandler}
+                        ingredientRemoved={this.removeIngredientHandler}
+                        disabled={disableInfo}
+                        price={this.state.totalPrice}
+                        purchaseable={this.state.purchaseable}
+                        ordered={this.purchaseHandler}
+                    />
+                </Aux>
+            );
+
+            orderSummary = <OrderSummary
+                ingredients={this.state.ingredients}
+                purchaseCancelled={this.purchaseCancelHandler}
+                purchaseContinued={this.purchaseContinueHandler}
+                price={this.state.totalPrice} />;
+        }
 
         if (this.state.loading) {
             orderSummary = <Spinner />
         }
 
-        return(
+
+        return (
             <Aux>
                 <Modal
                     show={this.state.purchasing}
@@ -167,15 +197,7 @@ class BurgerBuilder extends Component {
                             price={this.state.totalPrice}
                         /> */}
                 </Modal>
-                <Burger ingredients={this.state.ingredients}/>
-                <BuildControls
-                    ingredientAdded={this.addIngredientHandler}
-                    ingredientRemoved={this.removeIngredientHandler}
-                    disabled={disableInfo}
-                    price={this.state.totalPrice}
-                    purchaseable={this.state.purchaseable}
-                    ordered={this.purchaseHandler}
-                />
+                {burger}
             </Aux>
         );
     }

@@ -8,7 +8,6 @@ const withErrorHandler = (WrappedComponent, axios) => {
   // Could keep functional component and use UseEffect()
 
   return class extends Component {
-
     state = {
       error: null
     }
